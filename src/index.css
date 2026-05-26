@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;705;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -36,9 +37,6 @@
   --color-surface-container-high: #d5ecf8;
   --color-surface-container-highest: #cfe6f2;
 }
-
-/* Custom font styles are helpful */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;705;700&display=swap');
 
 html, body {
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif;

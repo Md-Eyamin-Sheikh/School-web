@@ -45,28 +45,47 @@ Bypassing complicated email credential prompts, developers and evaluators can in
 
 ---
 
-## ⚡ Tech Stack & Architecture
+## ⚡ Technology & Architecture
 
-*   **Frontend**: React 18 with Vite (TypeScript type stripped)
-*   **Styling**: Modern Tailwind CSS utility rules, responsive grids, and Google Fonts pairing (Inter + Space Grotesk)
-*   **Database & Auth**: Firebase Firestore real-time streams and Firebase OAuth credentials
-*   **Icons & Assets**: `lucide-react` modern vector glyph sets
+*   **Frontend**: React 19 with Vite 6, TypeScript, and a component-based single-page application structure.
+*   **Styling**: Tailwind CSS 4 utility classes, responsive mobile-first layouts, custom CSS, and Google Fonts pairing (Inter + Space Grotesk).
+*   **Backend**: Express 4 server written in TypeScript and run with `tsx` during development.
+*   **Database & Auth**: Firebase Authentication and Firestore real-time data streams, configured through `firebase-applet-config.json`.
+*   **Media Uploads**: Multer memory uploads with Cloudinary storage for gallery and admin-managed media.
+*   **Notifications**: Nodemailer SMTP email support, plus optional SMS dispatch through Twilio-compatible environment variables.
+*   **Maps & Location**: Leaflet with OpenStreetMap tiles for campus location, directions, nearby search, and distance tools.
+*   **Animation & UI**: `motion` for interface animation and `lucide-react` for consistent iconography.
+*   **Build Output**: Vite builds the frontend while `esbuild` bundles the Express server into `dist/server.cjs`.
 
 ---
 
-## 🚀 Running locally
+## 🚀 Running Locally
 
 1. Clone or export the project files.
-2. Run package installations:
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Set your environment parameters inside `.env.example`.
-4. Run the development server:
+3. Copy `.env.example` to `.env` and update the required values for Firebase, Cloudinary, SMTP, and optional SMS services.
+4. Make sure `firebase-applet-config.json` contains the Firebase project configuration and Firestore database ID.
+5. Start the local development server:
    ```bash
    npm run dev
    ```
-5. Build the production package:
+6. Build the production package:
    ```bash
    npm run build
    ```
+7. Run the production server after building:
+   ```bash
+   npm start
+   ```
+
+## ✅ Useful Scripts
+
+*   `npm run dev` - starts the Express + Vite development server.
+*   `npm run build` - builds the frontend and bundles the backend server.
+*   `npm start` - runs the bundled production server from `dist/server.cjs`.
+*   `npm run preview` - previews the Vite production build.
+*   `npm run lint` - runs TypeScript checks with `tsc --noEmit`.
+*   `npm run clean` - removes generated build artifacts.
