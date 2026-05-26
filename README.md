@@ -2,6 +2,8 @@
 
 Welcome to the official digital portal for **Damagara Syed Meena Dimukhe High School**, a modern, responsive, and high-performance educational platform designed to connect students, parents, administrators, and the wider community.
 
+**Live Site:** [https://sparkling-ganache-17789c.netlify.app/](https://sparkling-ganache-17789c.netlify.app/)
+
 ---
 
 ## 📱 Designed for 98% Mobile Users (মোবাইল বান্ধব ডিজাইন)
