@@ -1,0 +1,6 @@
+{
+  "name": "Damagara Syed Meena Dimukhe High School",
+  "description": "The official web portal of Damagara Syed Meena Dimukhe High School, featuring admissions, results lookup, academic calendar, notices, and latest news.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

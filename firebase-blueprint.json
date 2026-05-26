@@ -1,0 +1,427 @@
+{
+  "entities": {
+    "AdmissionApplication": {
+      "title": "Admission Application",
+      "description": "Represents an admission request submitted by a prospective student or parent.",
+      "type": "object",
+      "properties": {
+        "trackingId": {
+          "type": "string",
+          "description": "The unique application tracking identifier."
+        },
+        "studentName": {
+          "type": "string",
+          "description": "Full English name of the student candidate."
+        },
+        "studentNameBangla": {
+          "type": "string",
+          "description": "Bengali presentation name of the student."
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "Birth date of the student candidate."
+        },
+        "gender": {
+          "type": "string",
+          "description": "Gender of the student."
+        },
+        "religion": {
+          "type": "string",
+          "description": "Faith or religion of the family."
+        },
+        "bloodGroup": {
+          "type": "string",
+          "description": "Validated blood group."
+        },
+        "seekingClass": {
+          "type": "string",
+          "description": "Class grade requested by candidate."
+        },
+        "fatherName": {
+          "type": "string",
+          "description": "Name of the father."
+        },
+        "fatherProfession": {
+          "type": "string",
+          "description": "Profession of the father."
+        },
+        "motherName": {
+          "type": "string",
+          "description": "Name of the mother."
+        },
+        "motherProfession": {
+          "type": "string",
+          "description": "Profession of the mother."
+        },
+        "mobileNumber": {
+          "type": "string",
+          "description": "Verified mobile contact."
+        },
+        "email": {
+          "type": "string",
+          "description": "Optional email address."
+        },
+        "permanentAddress": {
+          "type": "string",
+          "description": "Living or postal location."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Attached photograph url or descriptor."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Approved", "ReviewRequired"],
+          "description": "Status of the admissions application."
+        },
+        "appliedDate": {
+          "type": "string",
+          "description": "When the form was submitted."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp indicating document creation."
+        }
+      },
+      "required": [
+        "trackingId",
+        "studentName",
+        "dateOfBirth",
+        "gender",
+        "seekingClass",
+        "fatherName",
+        "motherName",
+        "mobileNumber",
+        "permanentAddress",
+        "status",
+        "appliedDate"
+      ]
+    },
+    "StudentResult": {
+      "title": "Student Result marksheet",
+      "description": "Academic exam marksheet of DSMD high school students.",
+      "type": "object",
+      "properties": {
+        "studentId": {
+          "type": "string",
+          "description": "Unique student institutional identifier."
+        },
+        "studentName": {
+          "type": "string",
+          "description": "Name of the student."
+        },
+        "banglaName": {
+          "type": "string",
+          "description": "Optional Bangla name."
+        },
+        "class": {
+          "type": "string",
+          "description": "Registered grade level class."
+        },
+        "section": {
+          "type": "string",
+          "description": "Institutional classroom section."
+        },
+        "rollNo": {
+          "type": "integer",
+          "description": "Assigned class roll sequence."
+        },
+        "examType": {
+          "type": "string",
+          "description": "Examination category like Annual or Term."
+        },
+        "year": {
+          "type": "integer",
+          "description": "Academic roster year."
+        },
+        "subjectsMarks": {
+          "type": "array",
+          "description": "A list of subject marks details."
+        }
+      },
+      "required": [
+        "studentId",
+        "studentName",
+        "class",
+        "section",
+        "rollNo",
+        "examType",
+        "year",
+        "subjectsMarks"
+      ]
+    },
+    "MediaItem": {
+      "title": "Gallery Media Item",
+      "description": "Represents a media record uploaded representing images/videos stored in Cloudinary for the school gallery.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the media item."
+        },
+        "url": {
+          "type": "string",
+          "description": "Secure URL generated by Cloudinary."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the media in English."
+        },
+        "banglaTitle": {
+          "type": "string",
+          "description": "Title of the media in Bangla."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["classroom", "sports", "campus", "events"],
+          "description": "Category of the media."
+        },
+        "banglaCategory": {
+          "type": "string",
+          "description": "Translated category label."
+        },
+        "description": {
+          "type": "string",
+          "description": "Visual explanation of the media in English."
+        },
+        "banglaDescription": {
+          "type": "string",
+          "description": "Visual explanation of the media in Bangla."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date when the media is registered."
+        },
+        "banglaDate": {
+          "type": "string",
+          "description": "The date when the media is registered in Bengali."
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "Type of resource, e.g., image or video."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The exact creation timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "title",
+        "banglaTitle",
+        "category",
+        "banglaCategory",
+        "description",
+        "banglaDescription",
+        "date",
+        "banglaDate"
+      ]
+    },
+    "Admin": {
+      "title": "Admin Profile",
+      "description": "Information representing school administrative and coordinator staff logging details.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique Google or auth identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the administrator."
+        },
+        "email": {
+          "type": "string",
+          "description": "Authorized staff email."
+        },
+        "role": {
+          "type": "string",
+          "description": "Designative title (e.g. Academic Coordinator)."
+        },
+        "registeredAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Registration ISO date string."
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "Verified status for admin controls."
+        }
+      },
+      "required": [
+        "uid",
+        "name",
+        "email",
+        "role",
+        "registeredAt",
+        "verified"
+      ]
+    },
+    "Notice": {
+      "title": "School Notice",
+      "description": "Represents an official announcement or notification issued by the school management.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the notice."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the notice in English."
+        },
+        "banglaTitle": {
+          "type": "string",
+          "description": "Title of the notice in Bangla."
+        },
+        "publishDate": {
+          "type": "string",
+          "description": "Publication date string."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Admission", "Academic", "Exam", "Holiday", "General"],
+          "description": "Category classification."
+        },
+        "isNew": {
+          "type": "boolean",
+          "description": "Whether notice has been recently posted."
+        },
+        "content": {
+          "type": "string",
+          "description": "Full content of the notice in English."
+        },
+        "banglaContent": {
+          "type": "string",
+          "description": "Full content of the notice in Bangla."
+        }
+      },
+      "required": ["id", "title", "publishDate", "category", "content"]
+    },
+    "Faculty": {
+      "title": "Faculty Member",
+      "description": "Represents a school teacher or staff member.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the faculty member."
+        },
+        "name": {
+          "type": "string",
+          "description": "Academic name of the staff in English."
+        },
+        "banglaName": {
+          "type": "string",
+          "description": "Academic name of the staff in Bangla."
+        },
+        "designation": {
+          "type": "string",
+          "description": "Employment designation position in English."
+        },
+        "banglaDesignation": {
+          "type": "string",
+          "description": "Employment designation position in Bangla."
+        },
+        "qualification": {
+          "type": "string",
+          "description": "Academic qualification degrees details."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone string."
+        },
+        "email": {
+          "type": "string",
+          "description": "Authorized official email address."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Image secure url."
+        },
+        "joiningYear": {
+          "type": "integer",
+          "description": "Year of roster enrolment."
+        }
+      },
+      "required": ["id", "name", "designation", "qualification", "email", "joiningYear"]
+    },
+    "Settings": {
+      "title": "School Settings",
+      "description": "General settings parameters for institutional information.",
+      "type": "object",
+      "properties": {
+        "schoolName": {
+          "type": "string",
+          "description": "Official school name in English."
+        },
+        "schoolNameBangla": {
+          "type": "string",
+          "description": "Official school name in Bangla."
+        },
+        "eiin": {
+          "type": "string",
+          "description": "School EIIN number."
+        },
+        "established": {
+          "type": "string",
+          "description": "Established year details."
+        },
+        "email": {
+          "type": "string",
+          "description": "Official institutional email."
+        },
+        "hotline": {
+          "type": "string",
+          "description": "Official helpline / hotline contact."
+        },
+        "helpline": {
+          "type": "string",
+          "description": "Additional backup contact helpline."
+        },
+        "address": {
+          "type": "string",
+          "description": "School physical address in English."
+        },
+        "addressBangla": {
+          "type": "string",
+          "description": "School physical address in Bangla."
+        }
+      },
+      "required": ["schoolName", "schoolNameBangla", "eiin", "established"]
+    }
+  },
+  "firestore": {
+    "admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Registered and authorized administrator roster database."
+    },
+    "admissions/{trackingId}": {
+      "schema": "AdmissionApplication",
+      "description": "Root collection storing admissions forms submitted by external users."
+    },
+    "results/{studentId_examType}": {
+      "schema": "StudentResult",
+      "description": "Collection hosting student examination academic results."
+    },
+    "gallery_media/{mediaId}": {
+      "schema": "MediaItem",
+      "description": "Collection storing uploaded images, videos, and other records."
+    },
+    "notices/{noticeId}": {
+      "schema": "Notice",
+      "description": "Collection storing dynamically updated notices board announcements."
+    },
+    "teachers/{teacherId}": {
+      "schema": "Faculty",
+      "description": "Collection storing dynamically registered school teachers and faculty members."
+    },
+    "settings/{settingsId}": {
+      "schema": "Settings",
+      "description": "Collection storing school-wide portal details and administrative contacts."
+    }
+  }
+}

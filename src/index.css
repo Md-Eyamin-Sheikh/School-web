@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0d631b;
+  --color-primary-hover: #1b6d24;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2e7d32;
+  --color-on-primary-container: #cbffc2;
+  --color-inverse-primary: #88d982;
+  --color-primary-fixed: #a3f69c;
+  --color-primary-fixed-dim: #88d982;
+  
+  --color-secondary: #5d5f5f;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #dfe0e0;
+  --color-on-secondary-container: #616363;
+  
+  --color-tertiary: #6e5100;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #8c6800;
+  --color-on-tertiary-container: #ffefd7;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  
+  --color-surface: #f3faff;
+  --color-on-surface: #071e27;
+  --color-surface-dim: #c7dde9;
+  --color-surface-bright: #f3faff;
+  
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #e6f6ff;
+  --color-surface-container: #dbf1fe;
+  --color-surface-container-high: #d5ecf8;
+  --color-surface-container-highest: #cfe6f2;
+}
+
+/* Custom font styles are helpful */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;705;700&display=swap');
+
+html, body {
+  font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+  scroll-behavior: smooth;
+  background-color: #f3faff;
+}
+
+body {
+  color: #071e27;
+}
+
+.bengali-heading {
+  font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
+}
+
+/* Custom marquee slider ticker animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+/* Simulated 360 virtual tour camera panning */
+@keyframes infinite-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-infinite-pan {
+  animation: infinite-pan 45s linear infinite;
+}
+
+/* Custom Fade in animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Scale up transitions */
+@keyframes scaleUp {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Slowly rotating compass */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* Optimize results transcripts printing layout */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, button, .print\:hidden {
+    display: none !important;
+  }
+  main {
+    padding-bottom: 0 !important;
+  }
+}

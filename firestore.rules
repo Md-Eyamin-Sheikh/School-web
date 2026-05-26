@@ -1,0 +1,173 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getAdminDoc() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+
+    function isUserAdmin() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && 
+             !(getAdminDoc().role == "editor" || getAdminDoc().role.lower() == "editor");
+    }
+
+    function isUserEditor() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && 
+             (getAdminDoc().role == "editor" || getAdminDoc().role.lower() == "editor");
+    }
+
+    function isAdminOrEditor() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isValidAdminModel(data) {
+      return data.keys().hasAll(['uid', 'name', 'email', 'role', 'registeredAt', 'verified'])
+        && data.keys().size() == 6
+        && data.uid is string && data.uid == request.auth.uid
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 254
+        && data.role is string && data.role.size() > 0 && data.role.size() <= 100
+        && data.registeredAt is string && data.registeredAt.size() > 0 && data.registeredAt.size() <= 64
+        && data.verified is bool;
+    }
+
+    function isValidAdmission(data) {
+      return data.keys().hasAll([
+        'trackingId',
+        'studentName',
+        'dateOfBirth',
+        'gender',
+        'seekingClass',
+        'fatherName',
+        'motherName',
+        'mobileNumber',
+        'permanentAddress',
+        'status',
+        'appliedDate'
+      ]) && data.keys().size() <= 15
+        && data.trackingId is string && data.trackingId.size() > 0 && data.trackingId.size() <= 64
+        && data.studentName is string && data.studentName.size() > 0 && data.studentName.size() <= 128
+        && data.dateOfBirth is string && data.dateOfBirth.size() > 0 && data.dateOfBirth.size() <= 32
+        && data.gender is string && data.gender.size() > 0 && data.gender.size() <= 32
+        && data.seekingClass is string && data.seekingClass.size() > 0 && data.seekingClass.size() <= 32
+        && data.fatherName is string && data.fatherName.size() > 0 && data.fatherName.size() <= 128
+        && data.motherName is string && data.motherName.size() > 0 && data.motherName.size() <= 128
+        && data.mobileNumber is string && data.mobileNumber.size() > 0 && data.mobileNumber.size() <= 32
+        && data.permanentAddress is string && data.permanentAddress.size() > 0 && data.permanentAddress.size() <= 512
+        && data.status is string && data.status in ['Pending', 'Approved', 'ReviewRequired']
+        && data.appliedDate is string && data.appliedDate.size() > 0 && data.appliedDate.size() <= 32;
+    }
+
+    function isValidNotice(data) {
+      return data.keys().hasAll(['id', 'title', 'publishDate', 'category', 'content'])
+        && data.keys().size() <= 8
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 500
+        && data.publishDate is string && data.publishDate.size() > 0 && data.publishDate.size() <= 64
+        && data.category is string && data.category in ['Admission', 'Academic', 'Exam', 'Holiday', 'General']
+        && data.content is string && data.content.size() > 0 && data.content.size() <= 10000;
+    }
+
+    function isValidTeacher(data) {
+      return data.keys().hasAll(['id', 'name', 'designation', 'qualification', 'email', 'joiningYear'])
+        && data.keys().size() <= 10
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.designation is string && data.designation.size() > 0 && data.designation.size() <= 200
+        && data.qualification is string && data.qualification.size() > 0 && data.qualification.size() <= 500
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 254
+        && data.joiningYear is int;
+    }
+
+    function isValidSettings(data) {
+      return data.keys().hasAll(['schoolName', 'schoolNameBangla', 'eiin', 'established'])
+        && data.keys().size() <= 9
+        && data.schoolName is string && data.schoolName.size() > 0 && data.schoolName.size() <= 256
+        && data.schoolNameBangla is string && data.schoolNameBangla.size() > 0 && data.schoolNameBangla.size() <= 256
+        && data.eiin is string && data.eiin.size() > 0 && data.eiin.size() <= 32
+        && data.established is string && data.established.size() > 0 && data.established.size() <= 32;
+    }
+
+    // Admissions collection rules
+    match /admissions/{trackingId} {
+      allow get: if isValidId(trackingId);
+      allow list: if true;
+      allow create: if isValidId(trackingId) 
+                     && isValidAdmission(request.resource.data) 
+                     && request.resource.data.status == 'Pending';
+      allow update: if isValidId(trackingId);
+      allow delete: if false;
+    }
+
+    // Delivery logs collection rules
+    match /delivery_logs/{logId} {
+      allow get, list, create: if true;
+      allow update, delete: if false;
+    }
+
+    // Results collection rules
+    match /results/{resultId} {
+      allow get: if isValidId(resultId);
+      allow list: if true;
+      allow create, update, delete: if isAdminOrEditor();
+    }
+
+    // Gallery media rules
+    match /gallery_media/{mediaId} {
+      allow get: if isValidId(mediaId);
+      allow list: if true;
+      allow create, update, delete: if isAdminOrEditor();
+    }
+
+    // Notices matches
+    match /notices/{noticeId} {
+      allow get: if isValidId(noticeId);
+      allow list: if true;
+      allow create, update: if isValidId(noticeId) && isAdminOrEditor() && isValidNotice(request.resource.data);
+      allow delete: if isValidId(noticeId) && isAdminOrEditor();
+    }
+
+    // Teachers matches
+    match /teachers/{teacherId} {
+      allow get: if isValidId(teacherId);
+      allow list: if true;
+      allow create, update: if isValidId(teacherId) && isUserAdmin() && isValidTeacher(request.resource.data);
+      allow delete: if isValidId(teacherId) && isUserAdmin();
+    }
+
+    // Settings matches
+    match /settings/{settingsId} {
+      allow get: if isValidId(settingsId);
+      allow list: if true;
+      allow create, update: if isValidId(settingsId) && isUserAdmin() && isValidSettings(request.resource.data);
+      allow delete: if isValidId(settingsId) && isUserAdmin();
+    }
+
+    // Admins collection rules
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && isSignedIn();
+      allow list: if isSignedIn();
+      allow create, update: if isValidId(adminId) 
+                             && isSignedIn() 
+                             && request.auth.uid == adminId 
+                             && isValidAdminModel(request.resource.data);
+      allow delete: if false;
+    }
+  }
+}
