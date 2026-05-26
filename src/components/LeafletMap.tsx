@@ -6,6 +6,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Crosshair, School } from 'lucide-react';
 
 interface LeafletMapProps {
   isBangla: boolean;
@@ -36,35 +37,66 @@ export default function LeafletMap({
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
   const pathRef = useRef<L.Polyline | null>(null);
+  const schoolMarkerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    if (!container) return;
+    let resizeObserver: ResizeObserver | null = null;
+    let orientationTimer: ReturnType<typeof setTimeout> | null = null;
+    let handleOrientationChange: (() => void) | null = null;
 
     // Initialize map if it doesn't exist
     if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current, {
+      const map = L.map(container, {
         center: [schoolLat, schoolLng],
-        zoom: 14,
+        zoom: 15,
         zoomControl: true,
-        scrollWheelZoom: false
+        scrollWheelZoom: false,
+        zoomSnap: 0.5
       });
+      mapRef.current = map;
 
       // Add a clean, beautiful OpenStreetMap map tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(mapRef.current);
+      }).addTo(map);
 
       // Initialize layer group for markers
-      markersRef.current = L.layerGroup().addTo(mapRef.current);
+      markersRef.current = L.layerGroup().addTo(map);
+
+      map.whenReady(() => {
+        setTimeout(() => map.invalidateSize(), 250);
+      });
+
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(() => {
+          map.invalidateSize();
+        });
+        resizeObserver.observe(container);
+      }
+
+      handleOrientationChange = () => {
+        if (orientationTimer) clearTimeout(orientationTimer);
+        orientationTimer = setTimeout(() => map.invalidateSize(), 180);
+      };
+
+      window.addEventListener('orientationchange', handleOrientationChange);
     }
 
     // Cleanup function
     return () => {
+      resizeObserver?.disconnect();
+      if (orientationTimer) clearTimeout(orientationTimer);
+      if (handleOrientationChange) {
+        window.removeEventListener('orientationchange', handleOrientationChange);
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
         markersRef.current = null;
         pathRef.current = null;
+        schoolMarkerRef.current = null;
       }
     };
   }, [schoolLat, schoolLng]);
@@ -83,24 +115,34 @@ export default function LeafletMap({
 
     // Clear previous markers & paths
     markersGroup.clearLayers();
+    schoolMarkerRef.current = null;
     if (pathRef.current) {
       pathRef.current.remove();
       pathRef.current = null;
     }
 
+    const isCompactViewport = window.innerWidth < 640;
+    const mapPadding: L.PointTuple = isCompactViewport ? [30, 30] : [64, 64];
+    const focusZoom = isCompactViewport ? 16 : 17;
+    const campusZoom = isCompactViewport ? 17 : 18;
+
     // Custom SVG styled markers inside DivIcons to prevent asset path/loading errors
     const schoolIcon = L.divIcon({
       html: `
-        <div class="relative flex items-center justify-center">
-          <div class="absolute w-8 h-8 rounded-full bg-[#0d631b]/30 animate-pulse"></div>
-          <div class="relative w-7 h-7 rounded-full bg-[#0d631b] border-2 border-white flex items-center justify-center shadow-lg text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+        <div class="school-focus-marker">
+          <div class="school-focus-marker__ring"></div>
+          <div class="school-focus-marker__ring school-focus-marker__ring--delay"></div>
+          <div class="school-focus-marker__badge">${isBangla ? 'প্রধান স্কুল পয়েন্ট' : 'Primary school point'}</div>
+          <div class="school-focus-marker__pin">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
           </div>
         </div>
       `,
       className: 'custom-leaflet-marker bg-transparent',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      iconSize: [150, 96],
+      iconAnchor: [75, 62],
+      popupAnchor: [0, -52],
+      tooltipAnchor: [0, -60]
     });
 
     const targetIcon = L.divIcon({
@@ -157,15 +199,42 @@ export default function LeafletMap({
       iconAnchor: [10, 10]
     });
 
-    // Central School Marker is always shown
-    const schoolMarker = L.marker([schoolLat, schoolLng], { icon: schoolIcon });
+    // Central School Marker is always shown and visually prioritized.
+    const campusFocusCircle = L.circle([schoolLat, schoolLng], {
+      radius: activeMapTab === 'whats_here' ? 90 : 125,
+      color: '#0d631b',
+      weight: 2,
+      opacity: 0.75,
+      fillColor: '#88d982',
+      fillOpacity: 0.16,
+      dashArray: '8, 8'
+    });
+    markersGroup.addLayer(campusFocusCircle);
+
+    const schoolMarker = L.marker([schoolLat, schoolLng], {
+      icon: schoolIcon,
+      zIndexOffset: 1000
+    });
     schoolMarker.bindPopup(`
-      <div class="p-2.5 font-sans">
-        <h4 class="font-black text-primary text-xs leading-tight mb-1">Damagara Syed Meena Dimukhe High School</h4>
-        <p class="text-slate-500 text-[10px] leading-relaxed m-0">${isBangla ? 'প্রতিষ্ঠিত: ১৯৬৪ খ্রি. | তারাতগাড়ী, শিবগঞ্জ, বগুড়া' : 'Est: 1964 | Tarat Gari, Shibganj, Bogra'}</p>
+      <div class="school-focus-popup-content">
+        <div class="school-focus-popup-content__label">${isBangla ? 'প্রধান গন্তব্য' : 'Main destination'}</div>
+        <h4>Damagara Syed Meena Dimukhe High School</h4>
+        <p>${isBangla ? 'প্রতিষ্ঠিত: ১৯৬৪ খ্রি. | তারাতগাড়ী, শিবগঞ্জ, বগুড়া' : 'Est. 1964 | Tarat Gari, Shibganj, Bogra'}</p>
+        <p class="school-focus-popup-content__coords">24.94528° N, 89.24670° E</p>
       </div>
-    `);
+    `, {
+      className: 'school-focus-popup',
+      closeButton: false,
+      maxWidth: 280
+    });
+    schoolMarker.bindTooltip(isBangla ? 'বিদ্যালয় কেন্দ্র' : 'School center', {
+      permanent: true,
+      direction: 'top',
+      className: 'school-map-tooltip',
+      offset: [0, -50]
+    });
     markersGroup.addLayer(schoolMarker);
+    schoolMarkerRef.current = schoolMarker;
 
     if (activeMapTab === 'directions') {
       // Directions Mode: Add secondary marker & draw routing polyline
@@ -194,7 +263,7 @@ export default function LeafletMap({
 
       // Adjust views to contain both positions nicely
       const bounds = L.latLngBounds(positions);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: mapPadding });
 
     } else if (activeMapTab === 'measure_distance') {
       // Geodesic Measurement Beam Mode: Add target point & draw measurement line
@@ -221,7 +290,7 @@ export default function LeafletMap({
       pathRef.current = polyline;
 
       const bounds = L.latLngBounds(positions);
-      map.fitBounds(bounds, { padding: [60, 60] });
+      map.fitBounds(bounds, { padding: mapPadding });
 
     } else if (activeMapTab === 'whats_here') {
       // Campus Landmarks Mode: Plot 3 major campus features on the map
@@ -246,7 +315,8 @@ export default function LeafletMap({
       });
 
       // Fly to a closer view containing the campus boundaries
-      map.flyTo([schoolLat, schoolLng], 18, { animate: true });
+      map.flyTo([schoolLat, schoolLng], campusZoom, { animate: true, duration: 0.8 });
+      schoolMarker.openPopup();
 
     } else if (activeMapTab === 'search_nearby') {
       // Nearby Places Mode: Plot points around Tarat gari
@@ -269,10 +339,11 @@ export default function LeafletMap({
       });
 
       // Show nearby area zoom
-      map.flyTo([schoolLat, schoolLng], 15, { animate: true });
+      map.flyTo([schoolLat, schoolLng], isCompactViewport ? 14.5 : 15, { animate: true, duration: 0.8 });
     } else {
       // Focus school directly
-      map.flyTo([schoolLat, schoolLng], 15, { animate: true });
+      map.flyTo([schoolLat, schoolLng], focusZoom, { animate: true, duration: 0.8 });
+      schoolMarker.openPopup();
     }
 
     return () => {
@@ -292,13 +363,52 @@ export default function LeafletMap({
     isBangla
   ]);
 
+  const focusSchool = () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const zoom = window.innerWidth < 640 ? 16 : 17;
+    map.flyTo([schoolLat, schoolLng], zoom, { animate: true, duration: 0.8 });
+    schoolMarkerRef.current?.openPopup();
+  };
+
   return (
-    <div className="w-full h-full min-h-[440px] relative rounded-b-2xl md:rounded-r-2xl border-t md:border-t-0 md:border-l border-outline-variant overflow-hidden shadow-inner bg-slate-100">
+    <div className="w-full h-[clamp(360px,58vh,640px)] lg:h-full min-h-[360px] sm:min-h-[440px] lg:min-h-[520px] relative rounded-b-2xl lg:rounded-r-2xl lg:rounded-bl-none border-t lg:border-t-0 lg:border-l border-outline-variant overflow-hidden shadow-inner bg-slate-100">
       <div 
         ref={mapContainerRef} 
-        style={{ width: '100%', height: '100%', minHeight: '440px' }} 
-        className="relative z-0"
+        aria-label={isBangla ? 'বিদ্যালয়ের ইন্টারেক্টিভ লোকেশন ম্যাপ' : 'Interactive school location map'}
+        className="absolute inset-0 z-0"
       />
+
+      <div className="pointer-events-none absolute inset-x-3 bottom-3 z-[400] flex justify-center sm:justify-end">
+        <div className="pointer-events-auto w-full max-w-sm rounded-2xl border border-white/70 bg-white/95 p-3 shadow-xl backdrop-blur-md sm:w-auto">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d631b] text-white shadow-md">
+              <School className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[9px] font-black uppercase tracking-wider text-[#0d631b]">
+                {isBangla ? 'প্রাথমিক ম্যাপ পয়েন্ট' : 'Primary map point'}
+              </span>
+              <strong className="block truncate text-xs font-black leading-tight text-slate-900">
+                Damagara Syed Meena Dimukhe High School
+              </strong>
+              <span className="mt-1 block font-mono text-[10px] font-bold text-slate-500">
+                24.94528, 89.24670
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={focusSchool}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#0d631b]/15 bg-[#f0fbdc] text-[#0d631b] transition hover:bg-[#dff4bf] focus:outline-none focus:ring-2 focus:ring-[#0d631b]/25"
+              aria-label={isBangla ? 'বিদ্যালয় পয়েন্টে ফিরুন' : 'Center map on the school'}
+              title={isBangla ? 'বিদ্যালয় পয়েন্টে ফিরুন' : 'Center on school'}
+            >
+              <Crosshair className="h-4.5 w-4.5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
