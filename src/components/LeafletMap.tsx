@@ -12,7 +12,7 @@ interface LeafletMapProps {
   isBangla: boolean;
   schoolLat: number;
   schoolLng: number;
-  activeMapTab: 'directions' | 'whats_here' | 'search_nearby' | 'measure_distance';
+  activeMapTab: 'school_focus' | 'directions' | 'search_nearby' | 'measure_distance';
   targetDirectionsLat: number;
   targetDirectionsLng: number;
   measureLatVal: number;
@@ -124,7 +124,6 @@ export default function LeafletMap({
     const isCompactViewport = window.innerWidth < 640;
     const mapPadding: L.PointTuple = isCompactViewport ? [30, 30] : [64, 64];
     const focusZoom = isCompactViewport ? 16 : 17;
-    const campusZoom = isCompactViewport ? 17 : 18;
 
     // Custom SVG styled markers inside DivIcons to prevent asset path/loading errors
     const schoolIcon = L.divIcon({
@@ -186,22 +185,9 @@ export default function LeafletMap({
       iconAnchor: [8, 8]
     });
 
-    const goldDotIcon = L.divIcon({
-      html: `
-        <div class="relative flex items-center justify-center">
-          <div class="relative w-5.5 h-5.5 rounded-full bg-[#6e5100] border-2 border-white flex items-center justify-center shadow-md text-[#ffdfa0] font-black text-[9px] animate-scaleUp">
-            ★
-          </div>
-        </div>
-      `,
-      className: 'custom-leaflet-marker bg-transparent',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
-    });
-
     // Central School Marker is always shown and visually prioritized.
     const campusFocusCircle = L.circle([schoolLat, schoolLng], {
-      radius: activeMapTab === 'whats_here' ? 90 : 125,
+      radius: activeMapTab === 'school_focus' ? 150 : 125,
       color: '#0d631b',
       weight: 2,
       opacity: 0.75,
@@ -291,32 +277,6 @@ export default function LeafletMap({
 
       const bounds = L.latLngBounds(positions);
       map.fitBounds(bounds, { padding: mapPadding });
-
-    } else if (activeMapTab === 'whats_here') {
-      // Campus Landmarks Mode: Plot 3 major campus features on the map
-      const landmarks = [
-        { name: isBangla ? 'মূল প্রশাসনিক ও শিক্ষা ভবন' : 'Syed Meena High Academic Block', lat: 24.94528, lng: 89.24670, desc: isBangla ? 'তিন তলা বিশিষ্ট ক্লাসরুম কমপ্লেক্স ও ল্যাব' : 'Three-story academic block & labs' },
-        { name: isBangla ? 'প্রধান ফুটবল ও ক্রীড়া ময়দান' : 'DSMD Sports Arena & Athletics Field', lat: 24.94560, lng: 89.24620, desc: isBangla ? 'ক্রীড়া প্রতিযোগিতা ও অ্যাসেম্বলি গ্রাউন্ড' : 'Athletics & assembly greens' },
-        { name: isBangla ? 'বোটানিক্যাল গার্ডেন' : 'Botanical Sylvan Park', lat: 24.94490, lng: 89.24710, desc: isBangla ? 'মনোরম বসার জায়গা ও বিরল উদ্ভিদ' : 'Botanical study garden and rest zones' }
-      ];
-
-      landmarks.forEach((l) => {
-        // Skip adding duplicate at central coordinate if it exactly matches schoolLat
-        if (l.lat === schoolLat && l.lng === schoolLng) return;
-
-        const lmMarker = L.marker([l.lat, l.lng], { icon: goldDotIcon });
-        lmMarker.bindPopup(`
-          <div class="p-2 font-sans">
-            <h4 class="font-bold text-[#6e5100] text-xs m-0">${l.name}</h4>
-            <p class="text-slate-500 text-[10px] m-0 mt-0.5">${l.desc}</p>
-          </div>
-        `);
-        markersGroup.addLayer(lmMarker);
-      });
-
-      // Fly to a closer view containing the campus boundaries
-      map.flyTo([schoolLat, schoolLng], campusZoom, { animate: true, duration: 0.8 });
-      schoolMarker.openPopup();
 
     } else if (activeMapTab === 'search_nearby') {
       // Nearby Places Mode: Plot points around Tarat gari

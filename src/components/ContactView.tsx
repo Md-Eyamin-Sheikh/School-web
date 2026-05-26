@@ -42,6 +42,8 @@ interface ContactViewProps {
   isBangla: boolean;
 }
 
+type MapWorkspaceTab = 'school_focus' | 'directions' | 'search_nearby' | 'measure_distance';
+
 export default function ContactView({ isBangla }: ContactViewProps) {
   // Contact Inquiry Form State
   const [formData, setFormData] = useState({
@@ -54,7 +56,7 @@ export default function ContactView({ isBangla }: ContactViewProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Map Workspace States
-  const [activeMapTab, setActiveMapTab] = useState<'directions' | 'whats_here' | 'search_nearby' | 'measure_distance'>('directions');
+  const [activeMapTab, setActiveMapTab] = useState<MapWorkspaceTab>('school_focus');
   const [directionMode, setDirectionMode] = useState<'to' | 'from'>('to');
   const [selectedHubId, setSelectedHubId] = useState<'bogra' | 'tarat_gari' | 'mokamtola' | 'shajahanpur' | 'custom'>('bogra');
   
@@ -462,10 +464,10 @@ export default function ContactView({ isBangla }: ContactViewProps) {
             <button
               onClick={() => setShowPrintPreview(true)}
               className="bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-              title="Print Directions"
+              title="Print location details"
             >
               <Printer className="h-4 w-4" />
-              <span>{isBangla ? 'প্রিন্ট' : 'Print Voucher'}</span>
+              <span>{isBangla ? 'প্রিন্ট' : 'Print Map'}</span>
             </button>
           </div>
         </div>
@@ -476,10 +478,23 @@ export default function ContactView({ isBangla }: ContactViewProps) {
           {/* Left Panel - Workspace Tools (5-cols) */}
           <div className="lg:col-span-5 border-r border-slate-100 flex flex-col bg-slate-50/50">
             {/* Header Tabs Navigation */}
-            <div className="grid grid-cols-4 border-b border-slate-100 text-center text-[10px] md:text-xs">
+            <div className="border-b border-slate-100 text-[10px] md:text-xs overflow-x-auto">
+              <div className="grid min-w-[520px] grid-cols-4 text-center sm:min-w-0">
+              <button
+                onClick={() => setActiveMapTab('school_focus')}
+                className={`py-3.5 px-2 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
+                  activeMapTab === 'school_focus' 
+                    ? 'border-primary text-primary bg-white' 
+                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
+                }`}
+              >
+                <School className="h-4.5 w-4.5" />
+                <span>{isBangla ? 'স্কুল পয়েন্ট' : 'School Point'}</span>
+              </button>
+
               <button
                 onClick={() => setActiveMapTab('directions')}
-                className={`py-3.5 px-1 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
+                className={`py-3.5 px-2 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
                   activeMapTab === 'directions' 
                     ? 'border-primary text-primary bg-white' 
                     : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
@@ -490,20 +505,8 @@ export default function ContactView({ isBangla }: ContactViewProps) {
               </button>
 
               <button
-                onClick={() => setActiveMapTab('whats_here')}
-                className={`py-3.5 px-1 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
-                  activeMapTab === 'whats_here' 
-                    ? 'border-primary text-primary bg-white' 
-                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
-                }`}
-              >
-                <School className="h-4.5 w-4.5" />
-                <span>{isBangla ? 'এখানে কি?' : "What's Here"}</span>
-              </button>
-
-              <button
                 onClick={() => setActiveMapTab('search_nearby')}
-                className={`py-3.5 px-1 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
+                className={`py-3.5 px-2 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
                   activeMapTab === 'search_nearby' 
                     ? 'border-primary text-primary bg-white' 
                     : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
@@ -515,7 +518,7 @@ export default function ContactView({ isBangla }: ContactViewProps) {
 
               <button
                 onClick={() => setActiveMapTab('measure_distance')}
-                className={`py-3.5 px-1 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
+                className={`py-3.5 px-2 font-bold border-b-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
                   activeMapTab === 'measure_distance' 
                     ? 'border-primary text-primary bg-white' 
                     : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
@@ -524,6 +527,7 @@ export default function ContactView({ isBangla }: ContactViewProps) {
                 <Ruler className="h-4.5 w-4.5" />
                 <span>{isBangla ? 'দূরত্ব মাপা' : 'Distance'}</span>
               </button>
+              </div>
             </div>
 
             {/* Tab Workspace Panel Content */}
@@ -665,29 +669,82 @@ export default function ContactView({ isBangla }: ContactViewProps) {
                 </div>
               )}
 
-              {/* TAB 2: WHAT'S HERE */}
-              {activeMapTab === 'whats_here' && (
+              {/* TAB 2: PRIMARY SCHOOL FOCUS */}
+              {activeMapTab === 'school_focus' && (
                 <div className="space-y-4 animate-fadeIn">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-[#0d631b]">
-                    {isBangla ? 'বিদ্যালয় ক্যাম্পাসের মূল মাইলফলকসমূহ' : 'Campus Point Landmarks'}
-                  </h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    {isBangla 
-                      ? '২৪.৯৪৫২৮ অক্ষাংশ ও ৮৯.২৪৬৭০ দ্রাঘিমাংশে অবস্থিত বিদ্যালয়ের ভেতরে সুরক্ষিত সুবিধাসমূহ।' 
-                      : 'Explore historical sites, schools of instruction, and sports clusters inside the school campus premises.'
-                    }
-                  </p>
-
-                  <div className="space-y-3.5">
-                    {CAMPUS_LANDMARKS.map((land, ind) => (
-                      <div key={ind} className="bg-white border border-slate-200/60 hover:border-slate-350 p-3 rounded-2xl transition-all shadow-xs space-y-1.5 cursor-help">
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-xs text-slate-800 leading-tight block">{land.name}</span>
-                          <span className="text-[9px] font-mono font-bold text-primary bg-slate-50 px-1 py-0.5 rounded leading-none">{land.coords}</span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 leading-relaxed font-sans">{land.description}</p>
+                  <div className="rounded-2xl border border-[#bbf7d0]/70 bg-[#f0fbdc] p-4 shadow-xs">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#0d631b] text-white shadow-md">
+                        <School className="h-5.5 w-5.5" />
                       </div>
-                    ))}
+                      <div className="min-w-0">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-[#2e5e04]">
+                          {isBangla ? 'প্রধান লোকেশন পয়েন্ট' : 'Primary Location Point'}
+                        </span>
+                        <h4 className="mt-1 text-sm font-black leading-tight text-slate-900">
+                          Damagara Syed Meena Dimukhe High School
+                        </h4>
+                        <p className="mt-1.5 text-[11px] font-semibold leading-relaxed text-slate-600">
+                          {isBangla 
+                            ? 'টারাতগাড়ী, শিবগঞ্জ, বগুড়া | প্রতিষ্ঠিত ১৯৬৪ খ্রি.' 
+                            : 'Tarat Gari, Shibganj, Bogra | Established 1964'
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <div className="rounded-xl border border-white/70 bg-white/80 p-3">
+                        <span className="block text-[8px] font-black uppercase tracking-wider text-slate-400">{isBangla ? 'অক্ষাংশ' : 'Latitude'}</span>
+                        <span className="mt-1 block font-mono text-xs font-black text-slate-850">24.94528° N</span>
+                      </div>
+                      <div className="rounded-xl border border-white/70 bg-white/80 p-3">
+                        <span className="block text-[8px] font-black uppercase tracking-wider text-slate-400">{isBangla ? 'দ্রাঘিমাংশ' : 'Longitude'}</span>
+                        <span className="mt-1 block font-mono text-xs font-black text-slate-850">89.24670° E</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveMapTab('directions')}
+                        className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#0d631b] px-3 py-2 text-[11px] font-black text-white shadow-sm transition hover:bg-[#1b6d24] focus:outline-none focus:ring-2 focus:ring-[#0d631b]/25"
+                      >
+                        <Navigation className="h-4 w-4" />
+                        <span>{isBangla ? 'রুট দেখুন' : 'Plan Route'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#0d631b]/15 bg-white px-3 py-2 text-[11px] font-black text-[#0d631b] shadow-sm transition hover:bg-[#f8fff0] focus:outline-none focus:ring-2 focus:ring-[#0d631b]/25"
+                      >
+                        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        <span>{copied ? (isBangla ? 'কপি হয়েছে' : 'Copied') : (isBangla ? 'কপি' : 'Copy')}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-[#0d631b]">
+                        {isBangla ? 'ক্যাম্পাস পরিচিতি' : 'Campus Highlights'}
+                      </h4>
+                      <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-slate-500 ring-1 ring-slate-200">
+                        {CAMPUS_LANDMARKS.length} {isBangla ? 'পয়েন্ট' : 'points'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {CAMPUS_LANDMARKS.map((land, ind) => (
+                        <div key={ind} className="bg-white border border-slate-200/60 p-3 rounded-2xl transition-all shadow-xs space-y-1.5">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="font-bold text-xs text-slate-800 leading-tight block">{land.name}</span>
+                            <span className="w-max text-[9px] font-mono font-bold text-primary bg-slate-50 px-1.5 py-1 rounded leading-none">{land.coords}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-relaxed font-sans">{land.description}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -831,11 +888,11 @@ export default function ContactView({ isBangla }: ContactViewProps) {
 
             {/* Leaflet map integration status shown below the map wrapper */}
             <div className="bg-slate-950 p-4 text-white text-[10px] border-t border-white/10 leading-relaxed font-sans shrink-0 basis-auto">
-              <span className="font-bold text-emerald-400 block mb-0.5">🟢 Verified Route Maps (Leaflet.js + OpenStreetMap):</span>
+              <span className="font-bold text-emerald-400 block mb-0.5">{isBangla ? 'স্কুল লোকেশন যাচাই করা হয়েছে:' : 'Verified School Location:'}</span>
               <p>
                 {isBangla 
-                  ? 'এই ইন্টারেক্টিভ জিপিএস ম্যাপিং পোর্টালটি সম্পূর্ণ বিনামূল্যে এবং ওপেন-সোর্স প্রযুক্তি ব্যবহার করে তৈরি করা হয়েছে। যেকোনো ব্রাউজারেই জিপিএস রুট ট্র্যাক করা সম্ভব।' 
-                  : 'This interactive mapping service uses open-source GPS layers. Leaflet-rendered travel pathways and campus benchmarks are fully active across all dynamic viewport tabs.'}
+                  ? 'বিদ্যালয় পয়েন্টটি মূল ফোকাস হিসেবে রাখা হয়েছে। প্রয়োজন হলে Directions ট্যাব থেকে রুট প্ল্যানার চালু করা যাবে।' 
+                  : 'The school remains the primary map focus. The route planner is available only when the Directions tab is selected.'}
               </p>
             </div>
 
@@ -902,7 +959,7 @@ export default function ContactView({ isBangla }: ContactViewProps) {
             <div className="flex justify-between items-center pb-3 border-b border-slate-150 shrink-0">
               <h4 className="font-black text-slate-850 text-sm tracking-tight flex items-center gap-1.5 leading-none">
                 <FileText className="h-5 w-5 text-[#0d631b]" />
-                <span>Admission Route Voucher & Travel Sheet</span>
+                <span>{activeMapTab === 'directions' ? 'Route Voucher & Travel Sheet' : 'School Location Sheet'}</span>
               </h4>
               <button onClick={() => setShowPrintPreview(false)} className="p-1 hover:bg-slate-100 rounded-lg cursor-pointer">
                 <X className="h-5 w-5 text-slate-450" />
@@ -916,7 +973,9 @@ export default function ContactView({ isBangla }: ContactViewProps) {
                 {/* School Letterhead */}
                 <div className="text-center space-y-1.5 pb-4 border-b-2 border-[#0d631b]">
                   <h3 className="text-base font-black uppercase text-slate-950 letter-spacing-tight">DAMAGARA SYED MEENA DIMUKHE HIGH SCHOOL</h3>
-                  <p className="text-[10px] text-slate-600 font-extrabold uppercase font-sans">Official Admissions Transportation Guide</p>
+                  <p className="text-[10px] text-slate-600 font-extrabold uppercase font-sans">
+                    {activeMapTab === 'directions' ? 'Official Admissions Transportation Guide' : 'Official School Location Record'}
+                  </p>
                   <p className="text-[9px] text-[#0d631b] font-mono leading-none">W6WW+2F9, Tarat gari, Plain Land, Bogra, Bangladesh | +880 1711-366659</p>
                 </div>
 
@@ -930,34 +989,56 @@ export default function ContactView({ isBangla }: ContactViewProps) {
                   </div>
                   
                   <div className="space-y-1 bg-slate-50 border border-slate-205 p-3 rounded-xl leading-normal">
-                    <span className="text-[8px] text-slate-400 font-extrabold block">TRANSIT SUMMARY</span>
-                    <p className="font-bold text-[10px] text-slate-950">
-                      {selectedHubId === 'custom' ? 'Custom Origin Point' : TRANSIT_HUBS[selectedHubId].name}
-                    </p>
-                    <p className="font-sans text-[9px] text-slate-700">Est. Distance: {selectedHubId === 'custom' ? formattedCalculatedDistance : currentHub.distanceText}</p>
-                    <p className="font-sans text-[9px] text-slate-700">Est. Time by Car: {selectedHubId === 'custom' ? formattedCalculatedDrivingTime : currentHub.timeCar}</p>
-                  </div>
-                </div>
-
-                {/* Directions route plan */}
-                <div className="space-y-2">
-                  <span className="text-[9px] font-extrabold text-[#0d631b] uppercase block tracking-wider">Step-by-Step Feeder Directions:</span>
-                  <div className="space-y-1.5 pl-2 border-l-2 border-slate-400">
-                    {selectedHubId === 'custom' ? (
-                      <p className="font-semibold text-[9.5px]">Head directly from your specified coordinate origin. Follow secondary roads towards Tarat Gari bazar linkages.</p>
+                    <span className="text-[8px] text-slate-400 font-extrabold block">
+                      {activeMapTab === 'directions' ? 'TRANSIT SUMMARY' : 'SCHOOL LOCATION SUMMARY'}
+                    </span>
+                    {activeMapTab === 'directions' ? (
+                      <>
+                        <p className="font-bold text-[10px] text-slate-950">
+                          {selectedHubId === 'custom' ? 'Custom Origin Point' : TRANSIT_HUBS[selectedHubId].name}
+                        </p>
+                        <p className="font-sans text-[9px] text-slate-700">Est. Distance: {selectedHubId === 'custom' ? formattedCalculatedDistance : currentHub.distanceText}</p>
+                        <p className="font-sans text-[9px] text-slate-700">Est. Time by Car: {selectedHubId === 'custom' ? formattedCalculatedDrivingTime : currentHub.timeCar}</p>
+                      </>
                     ) : (
-                      currentHub.routes.map((route: string, ind: number) => (
-                        <p key={ind} className="text-[9.5px] font-semibold"><span className="text-[#0d631b] font-black">{ind + 1}.</span> {route}</p>
-                      ))
+                      <>
+                        <p className="font-bold text-[10px] text-slate-950">Primary mapped school point</p>
+                        <p className="font-sans text-[9px] text-slate-700">Address: Tarat Gari, Shibganj, Bogra</p>
+                        <p className="font-sans text-[9px] text-slate-700">Established: 1964</p>
+                      </>
                     )}
                   </div>
                 </div>
+
+                {activeMapTab === 'directions' ? (
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-extrabold text-[#0d631b] uppercase block tracking-wider">Step-by-Step Feeder Directions:</span>
+                    <div className="space-y-1.5 pl-2 border-l-2 border-slate-400">
+                      {selectedHubId === 'custom' ? (
+                        <p className="font-semibold text-[9.5px]">Head directly from your specified coordinate origin. Follow secondary roads towards Tarat Gari bazar linkages.</p>
+                      ) : (
+                        currentHub.routes.map((route: string, ind: number) => (
+                          <p key={ind} className="text-[9.5px] font-semibold"><span className="text-[#0d631b] font-black">{ind + 1}.</span> {route}</p>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-extrabold text-[#0d631b] uppercase block tracking-wider">Campus Location Highlights:</span>
+                    <div className="space-y-1.5 pl-2 border-l-2 border-slate-400">
+                      {CAMPUS_LANDMARKS.map((land, ind) => (
+                        <p key={ind} className="text-[9.5px] font-semibold"><span className="text-[#0d631b] font-black">{ind + 1}.</span> {land.name} - {land.coords}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Footnotes voucher confirmation barcode visualization */}
                 <div className="border-t border-dashed border-slate-200 pt-4 flex justify-between items-center gap-4">
                   <div className="text-[8.5px] text-slate-450 leading-relaxed">
                     <p className="font-bold">Important Instructions:</p>
-                    <p>1. Present this route voucher with admissions credentials to transit drivers.</p>
+                    <p>1. Use this location sheet to identify the school point accurately.</p>
                     <p>2. Report coordinate issues to info@damagarasmdhs.edu.bd.</p>
                   </div>
                   {/* barcode simulation */}
