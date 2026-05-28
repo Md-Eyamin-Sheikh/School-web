@@ -46,6 +46,7 @@ import {
 import { db } from '../firebase';
 import { SCHOOL_NOTICES, SCHOOL_FACULTY } from '../data';
 import { Notice, Faculty, StudentResult, AdmissionApplication } from '../types';
+import { apiUrl } from '../api';
 
 interface AdminPanelProps {
   isBangla: boolean;
@@ -339,7 +340,7 @@ export default function AdminPanel({
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch(apiUrl('/api/upload'), {
         method: 'POST',
         body: formData
       });
@@ -631,7 +632,7 @@ export default function AdminPanel({
   const handleAdmissionStatusChange = async (trackingId: string, targetStatus: 'Approved' | 'ReviewRequired' | 'Pending') => {
     setLoading(prev => ({ ...prev, admissions: true }));
     try {
-      const response = await fetch('/api/admissions/update-status', {
+      const response = await fetch(apiUrl('/api/admissions/update-status'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

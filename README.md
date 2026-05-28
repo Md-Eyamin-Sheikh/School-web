@@ -105,3 +105,23 @@ Bypassing complicated email credential prompts, developers and evaluators can in
 *   `npm --prefix ../SchoolBackend start` - runs the bundled backend server.
 *   `npm run preview` - previews the Vite production build.
 *   `npm run lint` - runs TypeScript checks with `tsc --noEmit`.
+
+## 🌐 Netlify + Backend Deployment
+
+The deployed frontend is:
+
+```bash
+https://sparkling-ganache-17789c.netlify.app
+```
+
+Deploy `SchoolBackend` separately to a Node host, then add this environment variable in Netlify before rebuilding the frontend:
+
+```bash
+VITE_API_BASE_URL="https://school-backend-rust.vercel.app"
+```
+
+On the backend host, set:
+
+```bash
+FRONTEND_URL="https://sparkling-ganache-17789c.netlify.app"
+```

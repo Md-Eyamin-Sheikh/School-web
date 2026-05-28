@@ -37,6 +37,7 @@ import { doc, setDoc, getDoc, collection, updateDoc, onSnapshot, query, orderBy,
 import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { db, auth, handleFirestoreError, OperationType } from '../firebase';
 import { AdmissionApplication } from '../types';
+import { apiUrl } from '../api';
 
 interface AdmissionsViewProps {
   isBangla: boolean;
@@ -138,7 +139,7 @@ export default function AdmissionsView({ isBangla }: AdmissionsViewProps) {
         payload.googleAccessToken = googleAccessToken;
       }
 
-      const response = await fetch('/api/admissions/update-status', {
+      const response = await fetch(apiUrl('/api/admissions/update-status'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
