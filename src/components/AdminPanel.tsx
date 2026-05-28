@@ -192,7 +192,7 @@ export default function AdminPanel({
       setNotices(noticeList);
 
       // Auto-Seed notices if collection empty to keep high-fidelity mock operational!
-      if (snap.empty && !loading.seeding) {
+      if (snap.empty && !loading.seeding && localStorage.getItem('demo_user_role') === 'admin') {
         seedNotices();
       }
     });
@@ -206,7 +206,7 @@ export default function AdminPanel({
       setTeachers(docs);
 
       // Auto-Seed teachers if collection empty to avoid blank state
-      if (snap.empty && !loading.seeding) {
+      if (snap.empty && !loading.seeding && localStorage.getItem('demo_user_role') === 'admin') {
         seedTeachers();
       }
     });
@@ -247,8 +247,8 @@ export default function AdminPanel({
         const snap = await getDoc(doc(db, 'settings', 'school_info'));
         if (snap.exists()) {
           setSettings(snap.data());
-        } else {
-          // Initialize in firestore
+        } else if (localStorage.getItem('demo_user_role') === 'admin') {
+          // Initialize in firestore ONLY if logged in as admin
           await setDoc(doc(db, 'settings', 'school_info'), settings);
         }
       } catch (err) {
@@ -273,6 +273,7 @@ export default function AdminPanel({
       console.log("[Seeder] Initializing FireStore 'notices' seeding...");
       for (const notice of SCHOOL_NOTICES) {
         await setDoc(doc(db, 'notices', notice.id), {
+          id: notice.id,
           title: notice.title,
           banglaTitle: notice.banglaTitle || '',
           publishDate: notice.publishDate,
@@ -296,6 +297,7 @@ export default function AdminPanel({
       console.log("[Seeder] Initializing FireStore 'teachers' seeding...");
       for (const faculty of SCHOOL_FACULTY) {
         await setDoc(doc(db, 'teachers', faculty.id), {
+          id: faculty.id,
           name: faculty.name,
           banglaName: faculty.banglaName || '',
           designation: faculty.designation,
@@ -383,7 +385,9 @@ export default function AdminPanel({
 
     setLoading(prev => ({ ...prev, notices: true }));
     try {
+      const id = isNoticeEdit && editNoticeId ? editNoticeId : 'notice_' + Date.now();
       const payload = {
+        id: id,
         title: noticeForm.title,
         banglaTitle: noticeForm.banglaTitle || '',
         category: noticeForm.category || 'Academic',
@@ -393,12 +397,10 @@ export default function AdminPanel({
         isNew: true
       };
 
+      await setDoc(doc(db, 'notices', id), payload);
       if (isNoticeEdit && editNoticeId) {
-        await setDoc(doc(db, 'notices', editNoticeId), payload);
         setSuccessMessage(isBangla ? 'নোটিশ সফলভাবে সংশোধন হয়েছে!' : 'Notice compiled and updated successfully in Firestore.');
       } else {
-        const id = 'notice_' + Date.now();
-        await setDoc(doc(db, 'notices', id), payload);
         setSuccessMessage(isBangla ? 'নতুন নোটিশ সফলভাবে যুক্ত হয়েছে!' : 'Notice publication broadcast active on live boards.');
       }
 
@@ -456,6 +458,7 @@ export default function AdminPanel({
     try {
       const id = 'fac_' + Date.now();
       const payload = {
+        id: id,
         name: teacherForm.name,
         banglaName: teacherForm.banglaName || teacherForm.name,
         designation: teacherForm.designation,

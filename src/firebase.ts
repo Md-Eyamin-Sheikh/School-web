@@ -17,7 +17,9 @@ import firebaseConfig from '../firebase-applet-config.json';
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore on specific DB ID and exported clients
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const db = (firebaseConfig as any).firestoreDatabaseId
+  ? getFirestore(app, (firebaseConfig as any).firestoreDatabaseId)
+  : getFirestore(app);
 export const auth = getAuth();
 
 export enum OperationType {

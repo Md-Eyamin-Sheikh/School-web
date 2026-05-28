@@ -1,10 +1,9 @@
 {
-  "projectId": "silken-cyclist-wr5vm",
-  "appId": "1:498883788021:web:e8ab3de78a0724b20e59bc",
-  "apiKey": "AIzaSyDuGQQuUUOL4EReVTKfznjqB4L0wZYNqmc",
-  "authDomain": "silken-cyclist-wr5vm.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-f380cee1-5139-40ba-918c-8c97f574dabd",
-  "storageBucket": "silken-cyclist-wr5vm.firebasestorage.app",
-  "messagingSenderId": "498883788021",
+  "projectId": "school-c8f41",
+  "appId": "1:766521354889:web:d25fc9712cc132bf69b458",
+  "apiKey": "AIzaSyANlYws7xRggwvwFA0vciId6EmMg6tH_qo",
+  "authDomain": "school-c8f41.firebaseapp.com",
+  "storageBucket": "school-c8f41.firebasestorage.app",
+  "messagingSenderId": "766521354889",
   "measurementId": ""
 }
