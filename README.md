@@ -66,28 +66,42 @@ Bypassing complicated email credential prompts, developers and evaluators can in
 1. Clone or export the project files.
 2. Install dependencies:
    ```bash
+   cd SchoolBackend && npm install
+   cd ../Schoolweb && npm install
+   ```
+   If you are already inside `Schoolweb`, run:
+   ```bash
    npm install
+   npm --prefix ../SchoolBackend install
    ```
 3. Copy `.env.example` to `.env` and update the required values for Firebase, Cloudinary, SMTP, and optional SMS services.
 4. Make sure `firebase-applet-config.json` contains the Firebase project configuration and Firestore database ID.
-5. Start the local development server:
+5. Start the local development servers from `Schoolweb`:
    ```bash
    npm run dev
+   ```
+   This launches both the Express API on `http://127.0.0.1:3001` and Vite on `http://localhost:5173`.
+   To run only the Vite frontend, use:
+   ```bash
+   npm run dev:frontend
    ```
 6. Build the production package:
    ```bash
    npm run build
+   npm --prefix ../SchoolBackend run build
    ```
 7. Run the production server after building:
    ```bash
-   npm start
+   npm --prefix ../SchoolBackend start
    ```
 
 ## ✅ Useful Scripts
 
-*   `npm run dev` - starts the Express + Vite development server.
-*   `npm run build` - builds the frontend and bundles the backend server.
-*   `npm start` - runs the bundled production server from `dist/server.cjs`.
+*   `npm run dev` - starts the Express API backend and Vite frontend together.
+*   `npm run dev:frontend` - starts only Vite.
+*   `npm run dev:backend` - starts only the Express API backend from `../SchoolBackend`.
+*   `npm run build` - builds the Vite frontend.
+*   `npm --prefix ../SchoolBackend run build` - bundles the Express backend.
+*   `npm --prefix ../SchoolBackend start` - runs the bundled backend server.
 *   `npm run preview` - previews the Vite production build.
 *   `npm run lint` - runs TypeScript checks with `tsc --noEmit`.
-*   `npm run clean` - removes generated build artifacts.

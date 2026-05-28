@@ -4,6 +4,8 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
+  const apiTarget = process.env.VITE_API_TARGET || 'http://127.0.0.1:3001';
+
   return {
     plugins: [react(), tailwindcss()],
     define: {
@@ -23,7 +25,7 @@ export default defineConfig(() => {
       // Proxy API requests to the separate backend server during development
       proxy: {
         '/api': {
-          target: 'http://localhost:3001',
+          target: apiTarget,
           changeOrigin: true,
           secure: false,
         },
